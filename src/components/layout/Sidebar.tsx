@@ -13,6 +13,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link, useLocation } from 'react-router-dom';
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -20,18 +21,20 @@ interface SidebarProps {
 }
 
 const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', href: '#dashboard', isActive: true },
-  { icon: Users, label: 'Employees', href: '#employees' },
-  { icon: UserCheck, label: 'Recruitment', href: '#recruitment' },
-  { icon: DollarSign, label: 'Payroll', href: '#payroll' },
-  { icon: TrendingUp, label: 'Performance', href: '#performance' },
-  { icon: MessageSquare, label: 'Engagement', href: '#engagement' },
-  { icon: BarChart3, label: 'Analytics', href: '#analytics' },
-  { icon: FileText, label: 'Compliance', href: '#compliance' },
-  { icon: Settings, label: 'Settings', href: '#settings' },
+  { icon: LayoutDashboard, label: 'Dashboard', href: '/' },
+  { icon: Users, label: 'Employees', href: '/employees' },
+  { icon: UserCheck, label: 'Recruitment', href: '/recruitment' },
+  { icon: DollarSign, label: 'Payroll', href: '/payroll' },
+  { icon: TrendingUp, label: 'Performance', href: '/performance' },
+  { icon: MessageSquare, label: 'Engagement', href: '/engagement' },
+  { icon: BarChart3, label: 'Analytics', href: '/analytics' },
+  { icon: FileText, label: 'Compliance', href: '/compliance' },
+  { icon: Settings, label: 'Settings', href: '/settings' },
 ];
 
 export const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
+  const location = useLocation();
+
   return (
     <div className={cn(
       "bg-sidebar border-r border-sidebar-border transition-all duration-300 flex flex-col",
@@ -59,21 +62,25 @@ export const Sidebar = ({ isCollapsed, onToggle }: SidebarProps) => {
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1">
-        {menuItems.map((item) => (
-          <button
-            key={item.label}
-            className={cn(
-              "w-full flex items-center px-3 py-3 rounded-lg text-left transition-all duration-200",
-              item.isActive 
-                ? "bg-sidebar-accent text-sidebar-primary" 
-                : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              isCollapsed ? "justify-center" : "space-x-3"
-            )}
-          >
-            <item.icon size={20} />
-            {!isCollapsed && <span className="font-medium">{item.label}</span>}
-          </button>
-        ))}
+        {menuItems.map((item) => {
+          const isActive = location.pathname === item.href;
+          return (
+            <Link
+              key={item.label}
+              to={item.href}
+              className={cn(
+                "w-full flex items-center px-3 py-3 rounded-lg text-left transition-all duration-200",
+                isActive 
+                  ? "bg-sidebar-accent text-sidebar-primary" 
+                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                isCollapsed ? "justify-center" : "space-x-3"
+              )}
+            >
+              <item.icon size={20} />
+              {!isCollapsed && <span className="font-medium">{item.label}</span>}
+            </Link>
+          );
+        })}
       </nav>
 
       {/* Footer */}

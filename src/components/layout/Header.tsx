@@ -1,24 +1,36 @@
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Bell, Search, Plus } from 'lucide-react';
+import { Bell, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { SearchComponent } from '@/components/ui/search';
+import { useLocation } from 'react-router-dom';
 
 export const Header = () => {
+  const location = useLocation();
+  
+  const getPageTitle = () => {
+    switch (location.pathname) {
+      case '/': return 'Dashboard';
+      case '/employees': return 'Employees';
+      case '/recruitment': return 'Recruitment';
+      case '/payroll': return 'Payroll';
+      case '/performance': return 'Performance';
+      case '/engagement': return 'Engagement';
+      case '/analytics': return 'Analytics';
+      case '/compliance': return 'Compliance';
+      case '/settings': return 'Settings';
+      default: return 'Dashboard';
+    }
+  };
+
   return (
     <header className="bg-card border-b border-border px-6 py-4 flex items-center justify-between">
       <div className="flex items-center space-x-4">
-        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-foreground">{getPageTitle()}</h1>
       </div>
       
       <div className="flex items-center space-x-4">
         {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
-          <Input 
-            placeholder="Search employees, jobs..." 
-            className="pl-10 w-80"
-          />
-        </div>
+        <SearchComponent />
 
         {/* Actions */}
         <Button className="bg-gradient-primary hover:bg-primary-hover">
