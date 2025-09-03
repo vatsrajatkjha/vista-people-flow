@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { CollaborationFeed } from '@/components/ui/collaboration-feed';
 import { 
   MessageSquare, 
   Heart, 
@@ -226,31 +227,10 @@ export default function Engagement() {
           </Card>
         </div>
 
-        {/* Announcements */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Company Announcements</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {announcements.map((announcement, index) => (
-                <div key={index} className="p-4 border rounded-lg hover:bg-accent/50 transition-colors">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-foreground">{announcement.title}</h3>
-                    <Badge variant={announcement.priority === 'High' ? 'destructive' : 'secondary'}>
-                      {announcement.priority}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-foreground mb-3">{announcement.content}</p>
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>By {announcement.author}</span>
-                    <span>{announcement.date}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Collaboration Feed */}
+        <div className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
+          <CollaborationFeed />
+        </div>
       </div>
     </MainLayout>
   );

@@ -73,6 +73,16 @@
     /* Animations */
     --transition-all: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-colors: color, background-color, border-color, text-decoration-color, fill, stroke 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Glassmorphism */
+    --glass-bg: hsl(var(--background) / 0.8);
+    --glass-border: hsl(var(--border) / 0.2);
+    
+    /* Gamification Colors */
+    --xp-bronze: 38 92% 50%;
+    --xp-silver: 210 40% 80%;
+    --xp-gold: 45 93% 58%;
+    --xp-diamond: 210 100% 56%;
   }
 
   .dark {
