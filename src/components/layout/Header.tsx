@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { SearchComponent } from '@/components/ui/search';
 import { AIAssistant } from '@/components/ui/ai-assistant';
 import { SmartNotificationsPanel, NotificationBell } from '@/components/ui/smart-notifications';
-import { Bell, Settings, User, Bot, Sparkles, Plus } from 'lucide-react';
+import { Bell, Settings, User, Bot, Sparkles } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
 export const Header = () => {
