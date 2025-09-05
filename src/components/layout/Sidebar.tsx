@@ -10,7 +10,8 @@ import {
   FileText,
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link, useLocation } from 'react-router-dom';
@@ -29,6 +30,7 @@ const menuItems = [
   { icon: MessageSquare, label: 'Engagement', href: '/engagement' },
   { icon: BarChart3, label: 'Analytics', href: '/analytics' },
   { icon: FileText, label: 'Compliance', href: '/compliance' },
+  { icon: Zap, label: 'Advanced', href: '/advanced' },
   { icon: Settings, label: 'Settings', href: '/settings' },
 ];
 

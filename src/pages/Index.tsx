@@ -4,27 +4,54 @@ import { RecentActivity } from '@/components/dashboard/RecentActivity';
 import { QuickActions } from '@/components/dashboard/QuickActions';
 import { EmployeeOverview } from '@/components/dashboard/EmployeeOverview';
 import { GamificationDashboard } from '@/components/ui/gamification';
+import { AdvancedAnalytics } from '@/components/features/advanced-analytics';
+import { TeamChat } from '@/components/features/team-chat';
+import { DocumentManager } from '@/components/features/document-manager';
 
 const Index = () => {
   return (
     <MainLayout>
       <div className="space-y-6">
         {/* Welcome Section with AI Insights */}
-        <div className="bg-gradient-primary rounded-xl p-8 text-white relative overflow-hidden animate-fade-in">
+        <div className="bg-gradient-hero rounded-xl p-8 text-white relative overflow-hidden animate-fade-in shadow-glow">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-12 -mb-12"></div>
           <div className="max-w-4xl relative z-10">
-            <h1 className="text-3xl font-bold mb-3 flex items-center">
+            <h1 className="text-4xl font-bold mb-3 flex items-center">
               Welcome back, John! 
               <span className="ml-2 animate-float">👋</span>
             </h1>
-            <p className="text-white/90 text-lg mb-4">
-              Here's what's happening with your team today. AI suggests focusing on 3 pending reviews and 2 high-potential candidates.
+            <p className="text-white/90 text-lg mb-6">
+              Your AI-powered HRMS is ready to help. Here's what's happening with your team today.
             </p>
-            <div className="flex space-x-4 text-sm">
-              <div className="bg-white/20 px-3 py-1 rounded-full">📊 Team productivity: +23%</div>
-              <div className="bg-white/20 px-3 py-1 rounded-full">🎯 Goals on track: 89%</div>
-              <div className="bg-white/20 px-3 py-1 rounded-full">⚡ Quick wins available: 3</div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+              <div className="bg-white/20 backdrop-blur-sm px-4 py-3 rounded-xl border border-white/10">
+                <div className="flex items-center">
+                  <span className="text-2xl mr-2">📊</span>
+                  <div>
+                    <div className="font-semibold">Team Productivity</div>
+                    <div className="text-white/80">+23% this month</div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white/20 backdrop-blur-sm px-4 py-3 rounded-xl border border-white/10">
+                <div className="flex items-center">
+                  <span className="text-2xl mr-2">🎯</span>
+                  <div>
+                    <div className="font-semibold">Goals Achieved</div>
+                    <div className="text-white/80">89% on track</div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-white/20 backdrop-blur-sm px-4 py-3 rounded-xl border border-white/10">
+                <div className="flex items-center">
+                  <span className="text-2xl mr-2">⚡</span>
+                  <div>
+                    <div className="font-semibold">AI Insights</div>
+                    <div className="text-white/80">3 recommendations</div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -47,6 +74,19 @@ const Index = () => {
           {/* Right Column - Quick Actions */}
           <div>
             <QuickActions />
+          </div>
+        </div>
+
+        {/* Advanced Features Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          {/* Team Chat */}
+          <div className="animate-fade-in" style={{ animationDelay: '0.5s' }}>
+            <TeamChat />
+          </div>
+          
+          {/* Quick Analytics Preview */}
+          <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
+            <AdvancedAnalytics />
           </div>
         </div>
 

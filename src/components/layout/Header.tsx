@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { SearchComponent } from '@/components/ui/search';
 import { AIAssistant } from '@/components/ui/ai-assistant';
 import { SmartNotificationsPanel, NotificationBell } from '@/components/ui/smart-notifications';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { Bell, Settings, User, Bot, Sparkles } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
@@ -22,6 +23,7 @@ export const Header = () => {
       case '/engagement': return 'Engagement';
       case '/analytics': return 'Analytics';
       case '/compliance': return 'Compliance';
+      case '/advanced': return 'Advanced Features';
       case '/settings': return 'Settings';
       default: return 'Dashboard';
     }
@@ -49,6 +51,9 @@ export const Header = () => {
         
         {/* Smart Notifications */}
         <NotificationBell onClick={() => setShowNotifications(!showNotifications)} />
+        
+        {/* Theme Toggle */}
+        <ThemeToggle />
         
         <Button variant="ghost" size="sm">
           <Settings size={20} />
