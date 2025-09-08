@@ -3,13 +3,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AdvancedAnalytics } from '@/components/features/advanced-analytics';
 import { TeamChat } from '@/components/features/team-chat';
 import { DocumentManager } from '@/components/features/document-manager';
+import { VideoCalling } from '@/components/features/video-calling';
+import { AIRecruitment } from '@/components/features/ai-recruitment';
+import { WorkflowAutomation } from '@/components/features/workflow-automation';
+import { WellnessTracking } from '@/components/features/wellness-tracking';
 import { 
   BarChart3, 
   MessageSquare, 
   FileText, 
   Calendar,
   Users,
-  Zap
+  Zap,
+  Video,
+  Brain,
+  Heart
 } from 'lucide-react';
 
 const AdvancedFeatures = () => {
@@ -32,18 +39,34 @@ const AdvancedFeatures = () => {
 
         {/* Feature Tabs */}
         <Tabs defaultValue="analytics" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 h-auto p-1">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-9 h-auto p-1">
             <TabsTrigger value="analytics" className="flex items-center space-x-2 px-4 py-3">
               <BarChart3 className="w-4 h-4" />
               <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
             <TabsTrigger value="chat" className="flex items-center space-x-2 px-4 py-3">
               <MessageSquare className="w-4 h-4" />
-              <span className="hidden sm:inline">Team Chat</span>
+              <span className="hidden sm:inline">Chat</span>
             </TabsTrigger>
             <TabsTrigger value="documents" className="flex items-center space-x-2 px-4 py-3">
               <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">Documents</span>
+              <span className="hidden sm:inline">Docs</span>
+            </TabsTrigger>
+            <TabsTrigger value="video" className="flex items-center space-x-2 px-4 py-3">
+              <Video className="w-4 h-4" />
+              <span className="hidden sm:inline">Video</span>
+            </TabsTrigger>
+            <TabsTrigger value="recruitment" className="flex items-center space-x-2 px-4 py-3">
+              <Brain className="w-4 h-4" />
+              <span className="hidden sm:inline">AI Recruit</span>
+            </TabsTrigger>
+            <TabsTrigger value="automation" className="flex items-center space-x-2 px-4 py-3">
+              <Zap className="w-4 h-4" />
+              <span className="hidden sm:inline">Workflow</span>
+            </TabsTrigger>
+            <TabsTrigger value="wellness" className="flex items-center space-x-2 px-4 py-3">
+              <Heart className="w-4 h-4" />
+              <span className="hidden sm:inline">Wellness</span>
             </TabsTrigger>
             <TabsTrigger value="calendar" className="flex items-center space-x-2 px-4 py-3">
               <Calendar className="w-4 h-4" />
@@ -51,11 +74,7 @@ const AdvancedFeatures = () => {
             </TabsTrigger>
             <TabsTrigger value="collaboration" className="flex items-center space-x-2 px-4 py-3">
               <Users className="w-4 h-4" />
-              <span className="hidden sm:inline">Collaborate</span>
-            </TabsTrigger>
-            <TabsTrigger value="automation" className="flex items-center space-x-2 px-4 py-3">
-              <Zap className="w-4 h-4" />
-              <span className="hidden sm:inline">Automation</span>
+              <span className="hidden sm:inline">Collab</span>
             </TabsTrigger>
           </TabsList>
 
@@ -71,6 +90,22 @@ const AdvancedFeatures = () => {
             <DocumentManager />
           </TabsContent>
 
+          <TabsContent value="video" className="space-y-6">
+            <VideoCalling />
+          </TabsContent>
+
+          <TabsContent value="recruitment" className="space-y-6">
+            <AIRecruitment />
+          </TabsContent>
+
+          <TabsContent value="automation" className="space-y-6">
+            <WorkflowAutomation />
+          </TabsContent>
+
+          <TabsContent value="wellness" className="space-y-6">
+            <WellnessTracking />
+          </TabsContent>
+
           <TabsContent value="calendar" className="space-y-6">
             <div className="text-center py-12">
               <Calendar className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
@@ -84,14 +119,6 @@ const AdvancedFeatures = () => {
               <Users className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-2xl font-bold mb-2">Advanced Collaboration</h3>
               <p className="text-muted-foreground">Coming soon - Enhanced team collaboration tools</p>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="automation" className="space-y-6">
-            <div className="text-center py-12">
-              <Zap className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-2xl font-bold mb-2">Workflow Automation</h3>
-              <p className="text-muted-foreground">Coming soon - Intelligent workflow automation</p>
             </div>
           </TabsContent>
         </Tabs>
