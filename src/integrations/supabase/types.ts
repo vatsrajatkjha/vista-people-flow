@@ -64,6 +64,146 @@ export type Database = {
           },
         ]
       }
+      candidate_interviews: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          interview_type: string | null
+          interviewer_id: string | null
+          location: string | null
+          notes: string | null
+          rating: number | null
+          scheduled_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          interview_type?: string | null
+          interviewer_id?: string | null
+          location?: string | null
+          notes?: string | null
+          rating?: number | null
+          scheduled_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          interview_type?: string | null
+          interviewer_id?: string | null
+          location?: string | null
+          notes?: string | null
+          rating?: number | null
+          scheduled_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_interviews_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidate_interviews_interviewer_id_fkey"
+            columns: ["interviewer_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      candidates: {
+        Row: {
+          ai_insights: string[] | null
+          availability: string | null
+          cover_letter: string | null
+          created_at: string
+          created_by: string | null
+          education: string | null
+          email: string
+          experience_years: number | null
+          id: string
+          job_posting_id: string | null
+          location: string | null
+          match_score: number | null
+          name: string
+          notes: string | null
+          phone: string | null
+          position: string
+          resume_url: string | null
+          salary_expectation: string | null
+          skills: string[] | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          ai_insights?: string[] | null
+          availability?: string | null
+          cover_letter?: string | null
+          created_at?: string
+          created_by?: string | null
+          education?: string | null
+          email: string
+          experience_years?: number | null
+          id?: string
+          job_posting_id?: string | null
+          location?: string | null
+          match_score?: number | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          position: string
+          resume_url?: string | null
+          salary_expectation?: string | null
+          skills?: string[] | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          ai_insights?: string[] | null
+          availability?: string | null
+          cover_letter?: string | null
+          created_at?: string
+          created_by?: string | null
+          education?: string | null
+          email?: string
+          experience_years?: number | null
+          id?: string
+          job_posting_id?: string | null
+          location?: string | null
+          match_score?: number | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          position?: string
+          resume_url?: string | null
+          salary_expectation?: string | null
+          skills?: string[] | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidates_job_posting_id_fkey"
+            columns: ["job_posting_id"]
+            isOneToOne: false
+            referencedRelation: "job_postings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       departments: {
         Row: {
           budget: number | null
@@ -730,6 +870,95 @@ export type Database = {
           status?: string | null
           title?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      workflow_executions: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          input_data: Json | null
+          output_data: Json | null
+          started_at: string
+          status: string
+          workflow_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          input_data?: Json | null
+          output_data?: Json | null
+          started_at?: string
+          status?: string
+          workflow_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          input_data?: Json | null
+          output_data?: Json | null
+          started_at?: string
+          status?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_executions_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_rules: {
+        Row: {
+          actions: Json
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          runs_today: number | null
+          success_rate: number | null
+          trigger_condition: string
+          updated_at: string
+        }
+        Insert: {
+          actions?: Json
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          runs_today?: number | null
+          success_rate?: number | null
+          trigger_condition: string
+          updated_at?: string
+        }
+        Update: {
+          actions?: Json
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          runs_today?: number | null
+          success_rate?: number | null
+          trigger_condition?: string
+          updated_at?: string
         }
         Relationships: []
       }

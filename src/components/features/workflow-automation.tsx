@@ -4,6 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useWorkflows, type WorkflowRule } from '@/hooks/useWorkflows';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { 
   Zap, 
   Play, 
@@ -19,144 +28,109 @@ import {
   AlertCircle,
   TrendingUp,
   Bot,
-  ArrowRight
+  ArrowRight,
+  Edit,
+  Trash2
 } from 'lucide-react';
 
-interface WorkflowRule {
-  id: string;
-  name: string;
-  description: string;
-  trigger: string;
-  actions: string[];
-  isActive: boolean;
-  runsToday: number;
-  successRate: number;
-  category: 'onboarding' | 'performance' | 'leave' | 'recruitment' | 'general';
-}
+const workflowFormSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  description: z.string().optional(),
+  trigger_condition: z.string().min(1, 'Trigger condition is required'),
+  actions: z.string().min(1, 'Actions are required'),
+  category: z.enum(['onboarding', 'performance', 'leave', 'recruitment', 'general']),
+});
 
-const mockWorkflows: WorkflowRule[] = [
-  {
-    id: '1',
-    name: 'New Employee Onboarding',
-    description: 'Automatically create accounts, send welcome emails, and schedule orientation',
-    trigger: 'When new employee is added',
-    actions: [
-      'Create system accounts',
-      'Send welcome email package',
-      'Schedule orientation meeting',
-      'Assign buddy/mentor',
-      'Create training checklist'
-    ],
-    isActive: true,
-    runsToday: 3,
-    successRate: 98,
-    category: 'onboarding'
-  },
-  {
-    id: '2',
-    name: 'Performance Review Reminders',
-    description: 'Send automated reminders for upcoming performance reviews',
-    trigger: 'When review date approaches (7 days)',
-    actions: [
-      'Send reminder to manager',
-      'Send preparation email to employee',
-      'Schedule review meeting',
-      'Create review template'
-    ],
-    isActive: true,
-    runsToday: 12,
-    successRate: 94,
-    category: 'performance'
-  },
-  {
-    id: '3',
-    name: 'Leave Request Processing',
-    description: 'Auto-approve certain leave requests based on criteria',
-    trigger: 'When leave request is submitted',
-    actions: [
-      'Check leave balance',
-      'Verify manager approval',
-      'Update calendar',
-      'Notify team members',
-      'Generate coverage plan'
-    ],
-    isActive: true,
-    runsToday: 8,
-    successRate: 91,
-    category: 'leave'
-  },
-  {
-    id: '4',
-    name: 'Interview Scheduling',
-    description: 'Automatically schedule interviews and send invitations',
-    trigger: 'When candidate passes initial screening',
-    actions: [
-      'Find available interview slots',
-      'Send calendar invites',
-      'Prepare interview materials',
-      'Send candidate confirmation',
-      'Set up video call link'
-    ],
-    isActive: false,
-    runsToday: 0,
-    successRate: 87,
-    category: 'recruitment'
-  },
-  {
-    id: '5',
-    name: 'Birthday & Anniversary Celebrations',
-    description: 'Send congratulatory messages and celebration reminders',
-    trigger: 'On employee birthday or work anniversary',
-    actions: [
-      'Send birthday/anniversary email',
-      'Notify team via Slack',
-      'Add celebration to calendar',
-      'Trigger gift/reward process'
-    ],
-    isActive: true,
-    runsToday: 2,
-    successRate: 100,
-    category: 'general'
-  }
-];
-
-const getCategoryColor = (category: WorkflowRule['category']) => {
-  switch (category) {
-    case 'onboarding': return 'bg-green-500';
-    case 'performance': return 'bg-blue-500';
-    case 'leave': return 'bg-yellow-500';
-    case 'recruitment': return 'bg-purple-500';
-    case 'general': return 'bg-gray-500';
-    default: return 'bg-gray-500';
-  }
-};
-
-const getIcon = (category: WorkflowRule['category']) => {
-  switch (category) {
-    case 'onboarding': return Users;
-    case 'performance': return TrendingUp;
-    case 'leave': return Calendar;
-    case 'recruitment': return FileText;
-    case 'general': return Settings;
-    default: return Settings;
-  }
-};
+type WorkflowFormData = z.infer<typeof workflowFormSchema>;
 
 export const WorkflowAutomation = () => {
-  const [workflows, setWorkflows] = useState<WorkflowRule[]>(mockWorkflows);
+  const { workflows, loading, createWorkflow, updateWorkflow, deleteWorkflow, toggleWorkflow, executeWorkflow } = useWorkflows();
   const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowRule | null>(null);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingWorkflow, setEditingWorkflow] = useState<WorkflowRule | null>(null);
 
-  const toggleWorkflow = (id: string) => {
-    setWorkflows(workflows.map(workflow => 
-      workflow.id === id 
-        ? { ...workflow, isActive: !workflow.isActive }
-        : workflow
-    ));
+  const form = useForm<WorkflowFormData>({
+    resolver: zodResolver(workflowFormSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      trigger_condition: '',
+      actions: '',
+      category: 'general',
+    },
+  });
+
+  const handleAddWorkflow = async (data: WorkflowFormData) => {
+    try {
+      await createWorkflow({
+        ...data,
+        actions: data.actions.split('\n').filter(a => a.trim()),
+        is_active: true,
+        success_rate: 95,
+        runs_today: 0,
+      });
+      form.reset();
+      setIsAddDialogOpen(false);
+    } catch (error) {
+      console.error('Error adding workflow:', error);
+    }
   };
 
-  const totalActiveWorkflows = workflows.filter(w => w.isActive).length;
-  const totalRunsToday = workflows.reduce((sum, w) => sum + w.runsToday, 0);
-  const averageSuccessRate = workflows.reduce((sum, w) => sum + w.successRate, 0) / workflows.length;
+  const handleEditWorkflow = async (data: WorkflowFormData) => {
+    if (!editingWorkflow) return;
+    try {
+      await updateWorkflow(editingWorkflow.id, {
+        ...data,
+        actions: data.actions.split('\n').filter(a => a.trim()),
+      });
+      setIsEditDialogOpen(false);
+      setEditingWorkflow(null);
+      form.reset();
+    } catch (error) {
+      console.error('Error updating workflow:', error);
+    }
+  };
+
+  const openEditDialog = (workflow: WorkflowRule) => {
+    setEditingWorkflow(workflow);
+    form.reset({
+      name: workflow.name,
+      description: workflow.description || '',
+      trigger_condition: workflow.trigger_condition,
+      actions: workflow.actions.join('\n'),
+      category: workflow.category,
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const getCategoryColor = (category: WorkflowRule['category']) => {
+    switch (category) {
+      case 'onboarding': return 'bg-green-500';
+      case 'performance': return 'bg-blue-500';
+      case 'leave': return 'bg-yellow-500';
+      case 'recruitment': return 'bg-purple-500';
+      case 'general': return 'bg-gray-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getIcon = (category: WorkflowRule['category']) => {
+    switch (category) {
+      case 'onboarding': return Users;
+      case 'performance': return TrendingUp;
+      case 'leave': return Calendar;
+      case 'recruitment': return FileText;
+      case 'general': return Settings;
+      default: return Settings;
+    }
+  };
+
+  const totalActiveWorkflows = workflows.filter(w => w.is_active).length;
+  const totalRunsToday = workflows.reduce((sum, w) => sum + w.runs_today, 0);
+  const averageSuccessRate = workflows.length > 0 
+    ? workflows.reduce((sum, w) => sum + w.success_rate, 0) / workflows.length 
+    : 0;
 
   return (
     <div className="space-y-6">
@@ -170,7 +144,7 @@ export const WorkflowAutomation = () => {
             Intelligent automation for seamless HR operations
           </p>
         </div>
-        <Button className="bg-gradient-primary">
+        <Button className="bg-gradient-primary" onClick={() => setIsAddDialogOpen(true)}>
           <Plus className="w-4 h-4 mr-2" />
           Create Workflow
         </Button>
@@ -236,104 +210,134 @@ export const WorkflowAutomation = () => {
       </div>
 
       {/* Workflow Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {workflows.map((workflow) => {
-          const IconComponent = getIcon(workflow.category);
-          return (
-            <Card 
-              key={workflow.id} 
-              className="hover:shadow-lg transition-all duration-300 cursor-pointer group"
-              onClick={() => setSelectedWorkflow(workflow)}
-            >
-              <CardContent className="p-6">
-                {/* Header */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className={`p-2 ${getCategoryColor(workflow.category)} rounded-lg`}>
-                      <IconComponent className="w-5 h-5 text-white" />
+      {loading ? (
+        <div className="text-center py-8">Loading workflows...</div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {workflows.map((workflow) => {
+            const IconComponent = getIcon(workflow.category);
+            return (
+              <Card 
+                key={workflow.id} 
+                className="hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                onClick={() => setSelectedWorkflow(workflow)}
+              >
+                <CardContent className="p-6">
+                  {/* Header */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className={`p-2 ${getCategoryColor(workflow.category)} rounded-lg`}>
+                        <IconComponent className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
+                          {workflow.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">{workflow.description}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch 
+                        checked={workflow.is_active}
+                        onCheckedChange={() => toggleWorkflow(workflow.id)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Trigger */}
+                  <div className="mb-4">
+                    <div className="flex items-center text-sm font-medium mb-2">
+                      <Bot className="w-4 h-4 mr-2 text-primary" />
+                      Trigger
+                    </div>
+                    <div className="text-sm text-muted-foreground bg-muted/50 p-2 rounded">
+                      {workflow.trigger_condition}
+                    </div>
+                  </div>
+
+                  {/* Actions Preview */}
+                  <div className="mb-4">
+                    <div className="text-sm font-medium mb-2">Actions ({workflow.actions.length})</div>
+                    <div className="space-y-1">
+                      {workflow.actions.slice(0, 2).map((action, index) => (
+                        <div key={index} className="text-xs text-muted-foreground flex items-center">
+                          <ArrowRight className="w-3 h-3 mr-2 text-primary" />
+                          {action}
+                        </div>
+                      ))}
+                      {workflow.actions.length > 2 && (
+                        <div className="text-xs text-muted-foreground">
+                          +{workflow.actions.length - 2} more actions
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                    <div>
+                      <div className="text-sm font-medium">Runs Today</div>
+                      <div className="text-lg font-bold text-primary">{workflow.runs_today}</div>
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
-                        {workflow.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">{workflow.description}</p>
+                      <div className="text-sm font-medium">Success Rate</div>
+                      <div className="flex items-center space-x-2">
+                        <div className="text-lg font-bold text-primary">{workflow.success_rate}%</div>
+                        <Progress value={workflow.success_rate} className="flex-1 h-2" />
+                      </div>
                     </div>
                   </div>
-                  <Switch 
-                    checked={workflow.isActive}
-                    onCheckedChange={() => toggleWorkflow(workflow.id)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
 
-                {/* Trigger */}
-                <div className="mb-4">
-                  <div className="flex items-center text-sm font-medium mb-2">
-                    <Bot className="w-4 h-4 mr-2 text-primary" />
-                    Trigger
-                  </div>
-                  <div className="text-sm text-muted-foreground bg-muted/50 p-2 rounded">
-                    {workflow.trigger}
-                  </div>
-                </div>
-
-                {/* Actions Preview */}
-                <div className="mb-4">
-                  <div className="text-sm font-medium mb-2">Actions ({workflow.actions.length})</div>
-                  <div className="space-y-1">
-                    {workflow.actions.slice(0, 2).map((action, index) => (
-                      <div key={index} className="text-xs text-muted-foreground flex items-center">
-                        <ArrowRight className="w-3 h-3 mr-2 text-primary" />
-                        {action}
-                      </div>
-                    ))}
-                    {workflow.actions.length > 2 && (
-                      <div className="text-xs text-muted-foreground">
-                        +{workflow.actions.length - 2} more actions
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Stats */}
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                  <div>
-                    <div className="text-sm font-medium">Runs Today</div>
-                    <div className="text-lg font-bold text-primary">{workflow.runsToday}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium">Success Rate</div>
-                    <div className="flex items-center space-x-2">
-                      <div className="text-lg font-bold text-primary">{workflow.successRate}%</div>
-                      <Progress value={workflow.successRate} className="flex-1 h-2" />
+                  {/* Status and Actions */}
+                  <div className="flex items-center justify-between mt-4">
+                    <Badge variant={workflow.is_active ? "default" : "secondary"}>
+                      {workflow.is_active ? (
+                        <>
+                          <Play className="w-3 h-3 mr-1" />
+                          Active
+                        </>
+                      ) : (
+                        <>
+                          <Pause className="w-3 h-3 mr-1" />
+                          Paused
+                        </>
+                      )}
+                    </Badge>
+                    <div className="flex items-center space-x-1">
+                      <Badge variant="outline" className="capitalize">
+                        {workflow.category}
+                      </Badge>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEditDialog(workflow);
+                        }}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm('Are you sure you want to delete this workflow?')) {
+                            deleteWorkflow(workflow.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
-                </div>
-
-                {/* Status */}
-                <div className="flex items-center justify-between mt-4">
-                  <Badge variant={workflow.isActive ? "default" : "secondary"}>
-                    {workflow.isActive ? (
-                      <>
-                        <Play className="w-3 h-3 mr-1" />
-                        Active
-                      </>
-                    ) : (
-                      <>
-                        <Pause className="w-3 h-3 mr-1" />
-                        Paused
-                      </>
-                    )}
-                  </Badge>
-                  <Badge variant="outline" className="capitalize">
-                    {workflow.category}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
 
       {/* Workflow Detail Modal */}
       {selectedWorkflow && (
@@ -355,12 +359,11 @@ export const WorkflowAutomation = () => {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-6">
               {/* Status and Controls */}
               <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
                 <div className="flex items-center space-x-4">
-                  <Badge variant={selectedWorkflow.isActive ? "default" : "secondary"} className="px-3 py-1">
-                    {selectedWorkflow.isActive ? (
+                  <Badge variant={selectedWorkflow.is_active ? "default" : "secondary"} className="px-3 py-1">
+                    {selectedWorkflow.is_active ? (
                       <>
                         <Play className="w-4 h-4 mr-2" />
                         Active
@@ -373,14 +376,14 @@ export const WorkflowAutomation = () => {
                     )}
                   </Badge>
                   <div className="text-sm">
-                    <span className="font-medium">{selectedWorkflow.runsToday}</span> runs today
+                    <span className="font-medium">{selectedWorkflow.runs_today}</span> runs today
                   </div>
                   <div className="text-sm">
-                    <span className="font-medium">{selectedWorkflow.successRate}%</span> success rate
+                    <span className="font-medium">{selectedWorkflow.success_rate}%</span> success rate
                   </div>
                 </div>
                 <Switch 
-                  checked={selectedWorkflow.isActive}
+                  checked={selectedWorkflow.is_active}
                   onCheckedChange={() => toggleWorkflow(selectedWorkflow.id)}
                 />
               </div>
@@ -392,7 +395,7 @@ export const WorkflowAutomation = () => {
                   Trigger Condition
                 </h3>
                 <div className="bg-muted/50 p-4 rounded-lg">
-                  <p className="text-sm">{selectedWorkflow.trigger}</p>
+                  <p className="text-sm">{selectedWorkflow.trigger_condition}</p>
                 </div>
               </div>
 
@@ -423,11 +426,11 @@ export const WorkflowAutomation = () => {
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-muted/50 p-4 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-primary">{selectedWorkflow.runsToday}</div>
+                    <div className="text-2xl font-bold text-primary">{selectedWorkflow.runs_today}</div>
                     <div className="text-sm text-muted-foreground">Executions Today</div>
                   </div>
                   <div className="bg-muted/50 p-4 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-primary">{selectedWorkflow.successRate}%</div>
+                    <div className="text-2xl font-bold text-primary">{selectedWorkflow.success_rate}%</div>
                     <div className="text-sm text-muted-foreground">Success Rate</div>
                   </div>
                 </div>
@@ -435,11 +438,18 @@ export const WorkflowAutomation = () => {
 
               {/* Actions */}
               <div className="flex space-x-2 pt-4 border-t">
-                <Button className="flex-1 bg-gradient-primary">
+                <Button 
+                  className="flex-1 bg-gradient-primary"
+                  onClick={() => openEditDialog(selectedWorkflow)}
+                >
                   <Settings className="w-4 h-4 mr-2" />
                   Edit Workflow
                 </Button>
-                <Button variant="outline" className="flex-1">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => executeWorkflow(selectedWorkflow.id)}
+                >
                   <Play className="w-4 h-4 mr-2" />
                   Test Run
                 </Button>
@@ -448,6 +458,215 @@ export const WorkflowAutomation = () => {
           </Card>
         </div>
       )}
+    </div>
+  );
+};
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Workflow</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleAddWorkflow)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Workflow Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="New Employee Onboarding" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Describe what this workflow does..." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="onboarding">Onboarding</SelectItem>
+                        <SelectItem value="performance">Performance</SelectItem>
+                        <SelectItem value="leave">Leave Management</SelectItem>
+                        <SelectItem value="recruitment">Recruitment</SelectItem>
+                        <SelectItem value="general">General</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="trigger_condition"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Trigger Condition</FormLabel>
+                    <FormControl>
+                      <Input placeholder="When new employee is added" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="actions"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Actions (one per line)</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Create system accounts&#10;Send welcome email&#10;Schedule orientation"
+                        rows={5}
+                        {...field} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="flex justify-end space-x-2">
+                <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" className="bg-gradient-primary">
+                  Create Workflow
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Workflow Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Workflow</DialogTitle>
+          </DialogHeader>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(handleEditWorkflow)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Workflow Name</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="onboarding">Onboarding</SelectItem>
+                        <SelectItem value="performance">Performance</SelectItem>
+                        <SelectItem value="leave">Leave Management</SelectItem>
+                        <SelectItem value="recruitment">Recruitment</SelectItem>
+                        <SelectItem value="general">General</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="trigger_condition"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Trigger Condition</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="actions"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Actions (one per line)</FormLabel>
+                    <FormControl>
+                      <Textarea rows={5} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <div className="flex justify-end space-x-2">
+                <Button type="button" variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" className="bg-gradient-primary">
+                  Update Workflow
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
